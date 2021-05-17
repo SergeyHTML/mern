@@ -1,0 +1,5 @@
+{
+  "port": 5000,
+  "jwtSecret": "first blog with mern",
+  "mongoUri": "mongodb+srv://sergey:iN0HGCCIqCx9aZRA@cluster0.on90t.mongodb.net/app?retryWrites=true&w=majority"
+}
