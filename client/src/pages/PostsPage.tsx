@@ -1,25 +1,21 @@
-import React, {useCallback, useEffect, useState} from 'react';
-import {useHttp} from "../hooks/http.hook";
+import React, { useEffect } from 'react';
 import {CircularProgress, Grid, Typography} from "@material-ui/core";
+import {useDispatch, useSelector} from 'react-redux';
 import PostCard, {PostProps} from "../components/PostCard";
+import {fetchPosts} from "../redux/actions";
+import {StoreProps} from "../redux/rootReducer";
 
 const PostsPage = () => {
-    const { loading, request } = useHttp();
-    const [posts, setPosts] = useState<PostProps[]>([]);
-    const getPosts = useCallback(async () => {
-        try {
-            const fetchData = await request('/api/post')
-            setPosts(fetchData)
-        } catch (err) {
-            throw err
-        }
-    }, [request]);
+    const dispatch = useDispatch();
+    const posts: PostProps[] = useSelector((state: StoreProps) => {
+        return state.posts?.posts;
+    })
 
     useEffect(() => {
-        getPosts();
-    }, [getPosts])
+        dispatch(fetchPosts());
+    }, [dispatch])
 
-    if (loading || posts.length === 0) {
+    if (!posts?.length) {
         return <CircularProgress />
     }
     return (
@@ -28,7 +24,7 @@ const PostsPage = () => {
                 List posts
             </Typography>
             <Grid container spacing={3}>
-                {posts.map(post => (
+                {posts?.map(post => (
                     <Grid item xs={12} sm={6} md={4} key={post._id}>
                         <PostCard post={post} />
                     </Grid>

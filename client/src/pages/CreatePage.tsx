@@ -5,6 +5,8 @@ import AuthCard from "../components/AuthCard";
 import {Button, CardActions, CardContent, makeStyles, TextField, Typography} from "@material-ui/core";
 import {useHistory} from 'react-router-dom';
 import JoditEditor from "jodit-react";
+import {useDispatch} from "react-redux";
+import {createPost} from "../redux/actions";
 
 const useStyles = makeStyles({
     input: {
@@ -13,11 +15,12 @@ const useStyles = makeStyles({
 });
 
 const CreatePage = () => {
+    const dispatch = useDispatch();
     const editor = useRef(null)
     const [content, setContent] = useState('')
     const auth = useContext(AuthContext);
     const history = useHistory();
-    const {loading, error, request, clearError} = useHttp();
+    const {loading, error, clearError} = useHttp();
     const classes = useStyles();
     const [form, setForm] = useState({
         title: '',
@@ -30,17 +33,8 @@ const CreatePage = () => {
 
     const createHandler = async (): Promise<void> => {
         try {
-            const data = await request(
-                '/api/post/create',
-                'POST',
-                {...form, text: content, name: auth.name},
-                {
-                    Authorization: `Bearer ${auth.token}`
-                }
-            );
-
-            console.log(data)
-            history.push('/')
+            await dispatch(createPost({...form, text: content, name: auth.name}, auth.token));
+            history.push('/');
         } catch (err) {
             console.log(err)
         }

@@ -1,4 +1,4 @@
-import React, {useContext} from 'react';
+import React, {useCallback, useContext} from 'react';
 import {makeStyles} from '@material-ui/core/styles';
 import Card from '@material-ui/core/Card';
 import CardActions from '@material-ui/core/CardActions';
@@ -8,6 +8,8 @@ import Typography from '@material-ui/core/Typography';
 import {Link} from "react-router-dom";
 import ReactHtmlParser from 'react-html-parser';
 import {AuthContext} from "../context/AuthContext";
+import {useDispatch} from "react-redux";
+import {deletePost} from "../redux/actions";
 
 export interface PostProps {
     _id: string;
@@ -17,6 +19,7 @@ export interface PostProps {
     owner: string;
     data: Date;
 }
+
 const useStyles = makeStyles({
     root: {
         "height": '100%',
@@ -43,7 +46,12 @@ interface PostCardProps {
 const PostCard: React.FC<PostCardProps> = (props) => {
     const classes = useStyles();
     const auth = useContext(AuthContext);
+    const dispatch = useDispatch();
     const {post} = props;
+
+    const handleDelete = useCallback(() => {
+        dispatch(deletePost(post._id, auth.token))
+    }, [post._id, auth.token, dispatch])
 
     return (
         <Card className={classes.root}>
@@ -68,10 +76,17 @@ const PostCard: React.FC<PostCardProps> = (props) => {
                 <Button size="small" color="primary" component={Link} to={`/post/${post._id}`}>
                     Learn More
                 </Button>
-                {post.owner === auth.userId
-                && (<Button size="small" color="secondary" component={Link} to={`/post/${post._id}`}>
-                    Edit
-                </Button>)
+                {post.owner === auth.userId &&
+                (
+                    <>
+                        <Button size="small" color="default" component={Link} to={`/post/${post._id}`}>
+                            Edit
+                        </Button>
+                        <Button size="small" color="secondary" onClick={handleDelete}>
+                            Delete
+                        </Button>
+                    </>
+                )
                 }
             </CardActions>
         </Card>

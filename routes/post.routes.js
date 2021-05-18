@@ -9,7 +9,6 @@ postRouter.post('/create', authMiddleware, async (req, res) => {
     try {
         const { title, text, name } = req.body;
 
-        console.log('name:', req.user)
         const post = new Post({
             title, text, owner: req.user.userId, author: name
         })
@@ -31,14 +30,6 @@ postRouter.get('/', async (req, res) => {
         res.status(500).json({message: 'Something went wrong, try again!'})
     }
 });
-/*postRouter.get('/', authMiddleware, async (req, res) => {
-    try {
-        const posts = await Post.find({ owner: req.user.userId })
-        res.json(posts);
-    } catch (err) {
-        res.status(500).json({message: 'Something went wrong, try again!'})
-    }
-});*/
 
 postRouter.get('/:id', async (req, res) => {
     try {
@@ -48,3 +39,19 @@ postRouter.get('/:id', async (req, res) => {
         res.status(500).json({message: 'Something went wrong, try again!'})
     }
 });
+
+postRouter.delete('/delete', authMiddleware, async (req, res) => {
+    try {
+        const { id } = req.body;
+        const post = await Post.findOne({ _id: id})
+
+        if (post.owner.toString() === req.user.userId) {
+            Post.deleteOne({ _id: id}).then(() => {
+                res.status(200).json({ message: 'Your post was deleted!'})
+            })
+        }
+
+    } catch (e) {
+        res.status(500).json({message: 'Something went wrong, try again!'})
+    }
+})

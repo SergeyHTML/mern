@@ -32,6 +32,9 @@ export const useRoutes = (isAuthenticated: boolean) => {
             <Route path="/register" exact>
                 <AuthPage/>
             </Route>
+            <Route path="/post/:id">
+                <Post/>
+            </Route>
             <Route path="/" exact>
                 <PostsPage />
             </Route>

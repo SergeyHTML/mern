@@ -1,29 +1,28 @@
-import React, {useCallback, useEffect, useState} from 'react';
-import {useHttp} from "../hooks/http.hook";
-// import {useAuth} from "../hooks/auth.hook";
+import React, { useEffect, useState} from 'react';
 import {Card, CardContent, CircularProgress, Typography} from "@material-ui/core";
 import { useParams } from 'react-router-dom';
 import { PostProps } from '../components/PostCard';
 import ReactHtmlParser from 'react-html-parser';
+import {useDispatch, useSelector} from "react-redux";
+import {StoreProps} from "../redux/rootReducer";
+import {fetchPosts} from "../redux/actions";
 
 const Post = () => {
-    // const auth = useAuth();
-    const { request } = useHttp();
+    const dispatch = useDispatch();
+    const posts: PostProps[] = useSelector((state: StoreProps) => {
+        return state.posts?.posts;
+    })
     const [post, setPost] = useState<PostProps>();
     const {id} = useParams<{ id?: string }>();
 
-    const getPost = useCallback(async () => {
-        const data = await request(`/api/post/${id}`);
-        setPost(data);
-    }, [request, id])
-
     useEffect(() => {
-        getPost();
-    }, [getPost]);
+        if (!posts?.length) {
+            dispatch(fetchPosts());
+        } else {
+            setPost(posts.find(item => id === item._id))
+        }
+    }, [posts, dispatch, id]);
 
-    useEffect(() => {
-
-    }, [])
     if (!post) {
         return <CircularProgress />
     }
