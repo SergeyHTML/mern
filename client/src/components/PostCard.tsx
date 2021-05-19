@@ -8,8 +8,9 @@ import Typography from '@material-ui/core/Typography';
 import {Link} from "react-router-dom";
 import ReactHtmlParser from 'react-html-parser';
 import {AuthContext} from "../context/AuthContext";
-import {useDispatch} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import {deletePost} from "../redux/actions";
+import {StoreProps} from "../redux/rootReducer";
 
 export interface PostProps {
     _id: string;
@@ -47,6 +48,9 @@ const PostCard: React.FC<PostCardProps> = (props) => {
     const classes = useStyles();
     const auth = useContext(AuthContext);
     const dispatch = useDispatch();
+    const loading: boolean = useSelector((state: StoreProps) => {
+        return state.loading?.loading
+    })
     const {post} = props;
 
     const handleDelete = useCallback(() => {
@@ -79,10 +83,10 @@ const PostCard: React.FC<PostCardProps> = (props) => {
                 {post.owner === auth.userId &&
                 (
                     <>
-                        <Button size="small" color="default" component={Link} to={`/post/${post._id}`}>
+                        <Button size="small" color="default" component={Link} to={`/edit/${post._id}`}>
                             Edit
                         </Button>
-                        <Button size="small" color="secondary" onClick={handleDelete}>
+                        <Button size="small" color="secondary" onClick={handleDelete} disabled={loading}>
                             Delete
                         </Button>
                     </>

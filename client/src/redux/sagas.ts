@@ -1,5 +1,14 @@
 import {call, put, takeEvery} from 'redux-saga/effects'
-import {CREATE_POST, DELETE_POST, FETCH_POSTS, FILTER_POST, REQUEST_POSTS} from "./types";
+import {
+    CREATE_POST,
+    DELETE_POST,
+    EDIT_POST,
+    FETCH_POSTS,
+    FILTER_POST,
+    REQUEST_POSTS,
+    START_LOADING,
+    STOP_LOADING
+} from "./types";
 
 interface ActionType {
     type: string;
@@ -30,6 +39,7 @@ export function* sagaWatcher() {
     yield takeEvery(REQUEST_POSTS, sagaWorker);
     yield takeEvery(CREATE_POST, sagaCreator);
     yield takeEvery(DELETE_POST, sagaDelete);
+    yield takeEvery(EDIT_POST, sagaEditor);
 }
 
 function* sagaWorker() {
@@ -51,9 +61,24 @@ function* sagaCreator(action: ActionType) {
 }
 
 function* sagaDelete(action: ActionType) {
-    const {payload} = action;
-    yield call(deletePostRequest, payload);
-    yield put({type: FILTER_POST, payload: payload.id})
+    try {
+        const {payload} = action;
+        yield put({ type: START_LOADING })
+        yield call(deletePostRequest, payload);
+        yield put({type: FILTER_POST, payload: payload.id})
+    } catch (e) {
+        console.log(e);
+    } finally {
+        yield put({ type: STOP_LOADING })
+    }
+}
+
+function* sagaEditor(action: ActionType) {
+    try {
+        yield call(editPost, action.payload);
+    } catch (e) {
+        console.log(e);
+    }
 }
 
 async function fetchPosts() {
@@ -63,6 +88,17 @@ async function fetchPosts() {
 const saveNewPost = async (data: any): Promise<void> => {
     await request(
         '/api/post/create',
+        'POST',
+        data.data,
+        {
+            Authorization: `Bearer ${data.token}`
+        }
+    );
+}
+
+const editPost = async (data: any): Promise<void> => {
+    await request(
+        '/api/post/edit',
         'POST',
         data.data,
         {

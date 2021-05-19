@@ -5,6 +5,7 @@ import CreatePage from "./pages/CreatePage";
 import AuthPage from "./pages/AuthPage";
 import Post from "./pages/PostPage";
 import LoginPage from "./pages/LoginPage";
+import PostEdit from "./pages/PostEditPage";
 
 export const useRoutes = (isAuthenticated: boolean) => {
     if (isAuthenticated) {
@@ -12,6 +13,9 @@ export const useRoutes = (isAuthenticated: boolean) => {
             <Switch>
                 <Route path="/post/:id">
                     <Post/>
+                </Route>
+                <Route path="/edit/:id">
+                    <PostEdit />
                 </Route>
                 <Route path="/new">
                     <CreatePage/>

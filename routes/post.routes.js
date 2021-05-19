@@ -55,3 +55,22 @@ postRouter.delete('/delete', authMiddleware, async (req, res) => {
         res.status(500).json({message: 'Something went wrong, try again!'})
     }
 })
+
+postRouter.post('/edit', authMiddleware, async (req, res) => {
+    try {
+        const { title, text, id } = req.body;
+        const post = await Post.findOne({ _id: id});
+
+        if (post.owner.toString() === req.user.userId) {
+            post.updateOne({ title, text, data: Date.now() }).then(() => {
+
+                res.status(200).json({ message: 'Your post was edited!'})
+            }).catch(err => {
+                console.log(err);
+            })
+        }
+
+    } catch (e) {
+        res.status(500).json({message: 'Something went wrong, try again!'})
+    }
+})
