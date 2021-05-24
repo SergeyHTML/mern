@@ -1,4 +1,4 @@
-import React, {useCallback, useContext} from 'react';
+import React, {useCallback, useContext, useState} from 'react';
 import {makeStyles} from '@material-ui/core/styles';
 import Card from '@material-ui/core/Card';
 import CardActions from '@material-ui/core/CardActions';
@@ -11,6 +11,7 @@ import {AuthContext} from "../context/AuthContext";
 import {useDispatch, useSelector} from "react-redux";
 import {deletePost} from "../redux/actions";
 import {StoreProps} from "../redux/rootReducer";
+import AlertDialog from "./AlertDialog";
 
 export interface PostProps {
     _id: string;
@@ -53,48 +54,65 @@ const PostCard: React.FC<PostCardProps> = (props) => {
     })
     const {post} = props;
 
-    const handleDelete = useCallback(() => {
-        dispatch(deletePost(post._id, auth.token))
+    const [openDialog, setOpenDialog] = useState<boolean>(false);
+
+    const handleDelete = () => {
+        setOpenDialog(true)
+    }
+
+    const confirmDelete = useCallback((flag: boolean) => {
+        if (flag) {
+            dispatch(deletePost(post._id, auth.token));
+        }
+
+        setOpenDialog(false)
     }, [post._id, auth.token, dispatch])
 
     return (
-        <Card className={classes.root}>
-            {/*<CardMedia
-                className={classes.media}
-                image="/static/images/cards/contemplative-reptile.jpg"
-                title="Contemplative Reptile"
-            />*/}
-            <CardContent>
-                <Typography variant="h5">
-                    {post.title}
-                </Typography>
-                <Typography color="textSecondary" variant="body2">
-                    author: {post.author}, date: {new Date(post.data).toLocaleDateString()}
-                </Typography>
-                <div className={classes.shortText}>
-                    {ReactHtmlParser(post.text)}
-                </div>
+        <>
+            <Card className={classes.root}>
+                <CardContent>
+                    <Typography variant="h5">
+                        {post.title}
+                    </Typography>
+                    <Typography color="textSecondary" variant="body2">
+                        author: {post.author}, date: {new Date(post.data).toLocaleDateString()}
+                    </Typography>
+                    <div className={classes.shortText}>
+                        {ReactHtmlParser(post.text)}
+                    </div>
 
-            </CardContent>
-            <CardActions>
-                <Button size="small" color="primary" component={Link} to={`/post/${post._id}`}>
-                    Learn More
-                </Button>
-                {post.owner === auth.userId &&
-                (
-                    <>
-                        <Button size="small" color="default" component={Link} to={`/edit/${post._id}`}>
-                            Edit
-                        </Button>
-                        <Button size="small" color="secondary" onClick={handleDelete} disabled={loading}>
-                            Delete
-                        </Button>
-                    </>
-                )
-                }
-            </CardActions>
-        </Card>
+                </CardContent>
+                <CardActions>
+                    <Button size="small" color="primary" component={Link} to={`/post/${post._id}`}>
+                        Learn More
+                    </Button>
+                    {post.owner === auth.userId &&
+                    (
+                        <>
+                            <Button size="small" color="default" component={Link} to={`/edit/${post._id}`}>
+                                Edit
+                            </Button>
+                            <Button size="small" color="secondary" onClick={handleDelete} disabled={loading}>
+                                Delete
+                            </Button>
+                        </>
+                    )
+                    }
+                </CardActions>
+            </Card>
+
+            {openDialog &&
+            (
+                <AlertDialog
+                    open={openDialog}
+                    titlePost={post.title}
+                    confirmDelete={confirmDelete}
+                    title="Delete post?"
+                />
+            )}
+        </>
     );
-}
+};
 
 export default PostCard
