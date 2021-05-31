@@ -40,14 +40,14 @@ postRouter.get('/:id', async (req, res) => {
     }
 });
 
-postRouter.delete('/delete', authMiddleware, async (req, res) => {
+postRouter.delete('/delete/:id', authMiddleware, async (req, res) => {
     try {
-        const { id } = req.body;
+        const { id } = req.params;
         const post = await Post.findOne({ _id: id})
 
         if (post.owner.toString() === req.user.userId) {
             Post.deleteOne({ _id: id}).then(() => {
-                res.status(200).json({ message: 'Your post was deleted!'})
+                res.status(200).json({post, message: 'Your post was deleted!'})
             })
         }
 

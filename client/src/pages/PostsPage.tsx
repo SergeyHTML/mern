@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, {useEffect, useRef} from 'react';
 import {CircularProgress, Grid, Typography} from "@material-ui/core";
 import {useDispatch, useSelector} from 'react-redux';
 import PostCard, {PostProps} from "../components/PostCard";
@@ -13,10 +13,10 @@ const PostsPage = () => {
 
     useEffect(() => {
         dispatch(fetchPosts());
-    }, [dispatch])
+    }, [dispatch]);
 
     if (!posts?.length) {
-        return <CircularProgress />
+        return <CircularProgress data-testid="loader" />
     }
     return (
         <React.Fragment>

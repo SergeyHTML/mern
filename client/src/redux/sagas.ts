@@ -109,11 +109,9 @@ const editPost = async (data: any): Promise<void> => {
 
 const deletePostRequest = async (data: any): Promise<void> => {
     await request(
-        '/api/post/delete',
+        `/api/post/delete/${data.id}`,
         'DELETE',
-        {
-            id: data.id
-        },
+        null,
         {
             Authorization: `Bearer ${data.token}`
         }
